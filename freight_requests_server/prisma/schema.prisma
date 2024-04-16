@@ -12,3 +12,14 @@ datasource db {
   provider = "sqlite"
   url      = "file:./fr_req.db"
 }
+
+model FrReq {
+  id Int @id @default(autoincrement())
+  timestamp String
+  client_brand String
+  freighter_name String
+  phone String
+  comment String?
+  status String
+  ati String
+}

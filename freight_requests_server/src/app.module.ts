@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { FrReqModule } from './fr_req/fr_req.module';
 
 @Module({
-  imports: [],
+  imports: [FrReqModule],
   controllers: [],
   providers: [],
 })
