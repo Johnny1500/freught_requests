@@ -15,7 +15,7 @@ datasource db {
 
 model FrReq {
   id Int @id @default(autoincrement())
-  timestamp String
+  timestamp DateTime @default(now())
   client_brand String
   freighter_name String
   phone String

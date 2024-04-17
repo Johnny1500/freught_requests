@@ -21,20 +21,11 @@ export class FrReqService {
   }
 
   async updateFrReq(id: number, data: FrReq): Promise<FrReq> {
-    const {
-      timestamp,
-      client_brand,
-      freighter_name,
-      phone,
-      comment,
-      status,
-      ati,
-    } = data;
+    const { client_brand, freighter_name, phone, comment, status, ati } = data;
 
     return this.prisma.frReq.update({
       where: { id: Number(id) },
       data: {
-        timestamp,
         client_brand,
         freighter_name,
         phone,
