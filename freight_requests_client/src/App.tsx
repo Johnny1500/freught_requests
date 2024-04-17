@@ -1,15 +1,14 @@
-import { useState } from 'react'
-import './App.css'
+import "./App.css";
+import FrReqMainContent from "./Components/FrReqMainContent";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-     <div>Hello world</div>
-     <div>{count}</div>
+      <main>
+        <FrReqMainContent />
+      </main>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
