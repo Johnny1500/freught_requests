@@ -16,7 +16,7 @@ export default function CreateModal({ open, setOpen }: Props): JSX.Element {
       </Text>
       </div>
       <div className="modal-input-container">
-        <TextInput placeholder="Магнит" label="Название фирмы клиента" />
+        <TextInput placeholder="Магнит" label="Название фирмы клиента" data-cy="client_brand" />
         <TextInput placeholder="Иванов Иван Иванович" label="ФИО перевозчика" />
         <TextInput placeholder="+79999999998" label="Контактный телефон" />
         <TextInput label="Комментарий" />

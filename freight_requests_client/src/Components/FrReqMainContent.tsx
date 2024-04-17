@@ -13,21 +13,10 @@ import { Gear, TrashBin, Plus } from "@gravity-ui/icons";
 import "../App.css";
 import CreateModal from "./CreateModal";
 
-interface FrReq {
-  id: number;
-  timestamp: string | Date;
-  client_brand: string;
-  freighter_name: string;
-  phone: string;
-  comment?: string;
-  status: string;
-  ati: string;
-  updateBtn: JSX.Element;
-  deleteBtn: JSX.Element;
-}
+import { FrReqRender } from "../interfaces";
 
 export default function FrReqMainContent(): JSX.Element {
-  const [frRegs, setFrRegs] = useState<FrReq[]>([]);
+  const [frRegs, setFrRegs] = useState<FrReqRender[]>([]);
   const [isEditMode, setEditMode] = useState<boolean>(false);
 
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
