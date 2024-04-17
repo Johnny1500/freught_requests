@@ -1,6 +1,16 @@
-import { Table, Link, TableColumnConfig } from "@gravity-ui/uikit";
+import {
+  Table,
+  Link,
+  Button,
+  Text,
+  Icon,
+  TableColumnConfig,
+} from "@gravity-ui/uikit";
 import { useState, useEffect } from "react";
 
+import { Gear, TrashBin, Plus } from "@gravity-ui/icons";
+
+import "../App.css";
 
 interface FrReq {
   id: number;
@@ -11,12 +21,15 @@ interface FrReq {
   comment?: string;
   status: string;
   ati: string;
+  updateBtn: JSX.Element;
+  deleteBtn: JSX.Element;
 }
 
 export default function FrReqMainContent() {
   const [frRegs, setFrRegs] = useState<FrReq[]>([]);
+  const [isEditMode, setEditMode] = useState<boolean>(false);
 
-  const columns:TableColumnConfig<any>[] = [
+  const columns: TableColumnConfig<unknown>[] = [
     { id: "id", name: "Номер заявки", align: "center" },
     { id: "timestamp", name: "Дата", align: "center" },
     { id: "client_brand", name: "Название фирмы клиента", align: "center" },
@@ -27,6 +40,11 @@ export default function FrReqMainContent() {
     { id: "ati", name: "ATI", align: "center" },
   ];
 
+  if (isEditMode) {
+    columns.push({ id: "updateBtn", name: "Редактировать", align: "center" });
+    columns.push({ id: "deleteBtn", name: "Удалить", align: "center" });
+  }
+
   useEffect(() => {
     async function getFrReqs() {
       try {
@@ -34,8 +52,42 @@ export default function FrReqMainContent() {
 
         if (response.ok) {
           const json = await response.json();
-          setFrRegs([...json]);
-          console.log("json === ", json);
+
+          const formattedArr = [...json].map((item) => {
+            const formattedItem = { ...item };
+
+            const formatter = new Intl.DateTimeFormat("ru", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+            });
+
+            formattedItem["timestamp"] = formatter.format(
+              new Date(formattedItem["timestamp"])
+            );
+
+            formattedItem["ati"] = (
+              <Link href={formattedItem["ati"]}>{formattedItem["ati"]}</Link>
+            );
+
+            formattedItem["updateBtn"] = (
+              <Button view="outlined-action">
+                <Icon data={Gear} size={18} />
+              </Button>
+            );
+
+            formattedItem["deleteBtn"] = (
+              <Button view="outlined-danger">
+                <Icon data={TrashBin} size={18} />
+              </Button>
+            );
+
+            return formattedItem;
+          });
+
+          setFrRegs([...formattedArr]);
         } else {
           console.error("HTTP Error: " + response.status);
         }
@@ -51,6 +103,21 @@ export default function FrReqMainContent() {
 
   return (
     <section>
+      <h1>Заявки на перевозку</h1>
+      <div className="edit-container">
+        <Text>Количество {frRegs.length}</Text>
+        <div className="edit-btn-container">
+          <Button view="action" onClick={() => setEditMode(!isEditMode)}>
+            {isEditMode ? "Просматривать" : "Редактировать"}
+          </Button>
+          {isEditMode ? (
+            <Button view="action">
+              <Icon data={Plus} size={18} />
+              Создать
+            </Button>
+          ) : null}
+        </div>
+      </div>
       <Table data={frRegs} columns={columns}></Table>
     </section>
   );

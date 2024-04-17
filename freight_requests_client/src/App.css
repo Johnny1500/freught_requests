@@ -5,3 +5,16 @@
   text-align: center;
 }
 
+.edit-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.edit-btn-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
