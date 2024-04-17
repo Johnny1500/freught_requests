@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { Gear, TrashBin, Plus } from "@gravity-ui/icons";
 
 import "../App.css";
+import CreateModal from "./CreateModal";
 
 interface FrReq {
   id: number;
@@ -25,9 +26,11 @@ interface FrReq {
   deleteBtn: JSX.Element;
 }
 
-export default function FrReqMainContent() {
+export default function FrReqMainContent(): JSX.Element {
   const [frRegs, setFrRegs] = useState<FrReq[]>([]);
   const [isEditMode, setEditMode] = useState<boolean>(false);
+
+  const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
 
   const columns: TableColumnConfig<unknown>[] = [
     { id: "id", name: "Номер заявки", align: "center" },
@@ -111,7 +114,7 @@ export default function FrReqMainContent() {
             {isEditMode ? "Просматривать" : "Редактировать"}
           </Button>
           {isEditMode ? (
-            <Button view="action">
+            <Button view="action" onClick={() => setOpenCreateModal(true)}>
               <Icon data={Plus} size={18} />
               Создать
             </Button>
@@ -119,6 +122,7 @@ export default function FrReqMainContent() {
         </div>
       </div>
       <Table data={frRegs} columns={columns}></Table>
+      <CreateModal open={openCreateModal} setOpen={setOpenCreateModal} />
     </section>
   );
 }
