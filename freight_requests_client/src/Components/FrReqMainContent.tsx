@@ -6,11 +6,7 @@ import {
   Icon,
   TableColumnConfig,
 } from "@gravity-ui/uikit";
-import {
-  useState,
-  useEffect,
-  useRef 
-} from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { Gear, TrashBin, Plus } from "@gravity-ui/icons";
 
@@ -18,18 +14,23 @@ import "../App.css";
 
 import CreateModal from "./CreateModal";
 import UpdateModal from "./UpdateModal";
+import DeleteModal from "./DeleteModal";
 
 import { FrReqRender, FrReqUpdate } from "../interfaces";
 
 export default function FrReqMainContent(): JSX.Element {
   const [frRegs, setFrRegs] = useState<FrReqRender[]>([]);
+  const [filteredFrRegs, setFilteredFrReqs] = useState<FrReqRender[]>([]);
   const [isEditMode, setEditMode] = useState<boolean>(false);
 
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
+
+  const [hideCompletedReq, setHideCompletedReq] = useState<boolean>(false);
 
   const frReqCurrent = useRef<FrReqUpdate>({
-    id:1,
+    id: 1,
     status: "новая",
     client_brand: "",
     freighter_name: "",
@@ -63,8 +64,15 @@ export default function FrReqMainContent(): JSX.Element {
 
         const formattedArr = [...json].map((item) => {
           const formattedItem = { ...item };
-          const { status, client_brand, freighter_name, phone, ati, comment, id } =
-            item;
+          const {
+            status,
+            client_brand,
+            freighter_name,
+            phone,
+            ati,
+            comment,
+            id,
+          } = item;
           const intermediateItem = {
             id,
             status,
@@ -104,7 +112,13 @@ export default function FrReqMainContent(): JSX.Element {
           );
 
           formattedItem["deleteBtn"] = (
-            <Button view="outlined-danger">
+            <Button
+              view="outlined-danger"
+              onClick={() => {
+                frReqCurrent.current = intermediateItem;
+                setOpenDeleteModal(true);
+              }}
+            >
               <Icon data={TrashBin} size={18} />
             </Button>
           );
@@ -113,6 +127,16 @@ export default function FrReqMainContent(): JSX.Element {
         });
 
         setFrRegs([...formattedArr]);
+
+        if (hideCompletedReq) {
+          const intermediateRegs = [...formattedArr].filter(
+            (item) => item["status"] !== "завершено"
+          );
+
+          setFilteredFrReqs([...intermediateRegs]);
+        } else {
+          setFilteredFrReqs([...formattedArr]);
+        }
       } else {
         console.error("HTTP Error: " + response.status);
       }
@@ -120,6 +144,18 @@ export default function FrReqMainContent(): JSX.Element {
       if (error instanceof Error) {
         console.log("useEffect error.message === ", error.message);
       }
+    }
+  }
+
+  function handleHideCompetedReq() {
+    if (!hideCompletedReq) {
+      const intermediateRegs = [...frRegs].filter(
+        (item) => item["status"] !== "завершено"
+      );
+
+      setFilteredFrReqs([...intermediateRegs]);
+    } else {
+      setFilteredFrReqs([...frRegs]);
     }
   }
 
@@ -137,14 +173,27 @@ export default function FrReqMainContent(): JSX.Element {
             {isEditMode ? "Просматривать" : "Редактировать"}
           </Button>
           {isEditMode ? (
-            <Button view="action" onClick={() => setOpenCreateModal(true)}>
-              <Icon data={Plus} size={18} />
-              Создать
-            </Button>
+            <>
+              <Button view="action" onClick={() => setOpenCreateModal(true)}>
+                <Icon data={Plus} size={18} />
+                Создать
+              </Button>
+              <Button
+                view="action"
+                onClick={() => {
+                  setHideCompletedReq(!hideCompletedReq);
+                  handleHideCompetedReq();
+                }}
+              >
+                {hideCompletedReq
+                  ? "Показать завершенные"
+                  : "Скрыть завершенные"}
+              </Button>
+            </>
           ) : null}
         </div>
       </div>
-      <Table data={frRegs} columns={columns}></Table>
+      <Table data={filteredFrRegs} columns={columns}></Table>
       <CreateModal
         open={openCreateModal}
         setOpen={setOpenCreateModal}
@@ -153,6 +202,12 @@ export default function FrReqMainContent(): JSX.Element {
       <UpdateModal
         open={openUpdateModal}
         setOpen={setOpenUpdateModal}
+        getFrReqs={getFrReqs}
+        ref={frReqCurrent}
+      />
+      <DeleteModal
+        open={openDeleteModal}
+        setOpen={setOpenDeleteModal}
         getFrReqs={getFrReqs}
         ref={frReqCurrent}
       />
