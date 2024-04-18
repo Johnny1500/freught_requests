@@ -37,59 +37,59 @@ export default function FrReqMainContent(): JSX.Element {
     columns.push({ id: "deleteBtn", name: "Удалить", align: "center" });
   }
 
-  useEffect(() => {
-    async function getFrReqs() {
-      try {
-        const response = await fetch(`http://localhost:3000/api/v1/fr_req`);
+  async function getFrReqs() {
+    try {
+      const response = await fetch(`http://localhost:3000/api/v1/fr_req`);
 
-        if (response.ok) {
-          const json = await response.json();
+      if (response.ok) {
+        const json = await response.json();
 
-          const formattedArr = [...json].map((item) => {
-            const formattedItem = { ...item };
+        const formattedArr = [...json].map((item) => {
+          const formattedItem = { ...item };
 
-            const formatter = new Intl.DateTimeFormat("ru", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-              hour: "numeric",
-              minute: "numeric",
-            });
-
-            formattedItem["timestamp"] = formatter.format(
-              new Date(formattedItem["timestamp"])
-            );
-
-            formattedItem["ati"] = (
-              <Link href={formattedItem["ati"]}>{formattedItem["ati"]}</Link>
-            );
-
-            formattedItem["updateBtn"] = (
-              <Button view="outlined-action">
-                <Icon data={Gear} size={18} />
-              </Button>
-            );
-
-            formattedItem["deleteBtn"] = (
-              <Button view="outlined-danger">
-                <Icon data={TrashBin} size={18} />
-              </Button>
-            );
-
-            return formattedItem;
+          const formatter = new Intl.DateTimeFormat("ru", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
           });
 
-          setFrRegs([...formattedArr]);
-        } else {
-          console.error("HTTP Error: " + response.status);
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          console.log("useEffect error.message === ", error.message);
-        }
+          formattedItem["timestamp"] = formatter.format(
+            new Date(formattedItem["timestamp"])
+          );
+
+          formattedItem["ati"] = (
+            <Link href={formattedItem["ati"]}>{formattedItem["ati"]}</Link>
+          );
+
+          formattedItem["updateBtn"] = (
+            <Button view="outlined-action">
+              <Icon data={Gear} size={18} />
+            </Button>
+          );
+
+          formattedItem["deleteBtn"] = (
+            <Button view="outlined-danger">
+              <Icon data={TrashBin} size={18} />
+            </Button>
+          );
+
+          return formattedItem;
+        });
+
+        setFrRegs([...formattedArr]);
+      } else {
+        console.error("HTTP Error: " + response.status);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log("useEffect error.message === ", error.message);
       }
     }
+  }
 
+  useEffect(() => {
     getFrReqs();
   }, []);
 
@@ -111,7 +111,7 @@ export default function FrReqMainContent(): JSX.Element {
         </div>
       </div>
       <Table data={frRegs} columns={columns}></Table>
-      <CreateModal open={openCreateModal} setOpen={setOpenCreateModal} />
+      <CreateModal open={openCreateModal} setOpen={setOpenCreateModal} getFrReqs={getFrReqs} />
     </section>
   );
 }

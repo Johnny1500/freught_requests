@@ -1,12 +1,15 @@
-export interface FrReqRender {
-    id: number;
-    timestamp: string | Date;
-    client_brand: string;
-    freighter_name: string;
-    phone: string;
-    comment?: string;
-    status: string;
-    ati: string;
-    updateBtn: JSX.Element;
-    deleteBtn: JSX.Element;   
-  }
+export interface FrReqCreate {
+  client_brand: string;
+  freighter_name: string;
+  phone: string;
+  ati: string;
+  comment?: string;  
+}
+
+export interface FrReqRender extends FrReqCreate {
+  id: number;
+  timestamp: string | Date; 
+  status: string;  
+  updateBtn: JSX.Element;
+  deleteBtn: JSX.Element; 
+}
