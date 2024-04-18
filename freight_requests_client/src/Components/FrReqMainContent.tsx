@@ -6,20 +6,32 @@ import {
   Icon,
   TableColumnConfig,
 } from "@gravity-ui/uikit";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { Gear, TrashBin, Plus } from "@gravity-ui/icons";
 
 import "../App.css";
-import CreateModal from "./CreateModal";
 
-import { FrReqRender } from "../interfaces";
+import CreateModal from "./CreateModal";
+import UpdateModal from "./UpdateModal";
+
+import { FrReqRender, FrReqUpdate } from "../interfaces";
 
 export default function FrReqMainContent(): JSX.Element {
   const [frRegs, setFrRegs] = useState<FrReqRender[]>([]);
   const [isEditMode, setEditMode] = useState<boolean>(false);
 
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
+  const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
+
+  const frReqCurrent = useRef<FrReqUpdate>({
+    status: "новая",
+    client_brand: "",
+    freighter_name: "",
+    phone: "",
+    ati: "",
+    comment: "",
+  });
 
   const columns: TableColumnConfig<unknown>[] = [
     { id: "id", name: "Номер заявки", align: "center" },
@@ -46,6 +58,16 @@ export default function FrReqMainContent(): JSX.Element {
 
         const formattedArr = [...json].map((item) => {
           const formattedItem = { ...item };
+          const { status, client_brand, freighter_name, phone, ati, comment } =
+            item;
+          const intermediateItem = {
+            status,
+            client_brand,
+            freighter_name,
+            phone,
+            ati,
+            comment,
+          };
 
           const formatter = new Intl.DateTimeFormat("ru", {
             year: "numeric",
@@ -64,7 +86,9 @@ export default function FrReqMainContent(): JSX.Element {
           );
 
           formattedItem["updateBtn"] = (
-            <Button view="outlined-action">
+            <Button view="outlined-action" onClick={() => {
+              frReqCurrent.current = intermediateItem;
+            }}>
               <Icon data={Gear} size={18} />
             </Button>
           );
@@ -111,7 +135,16 @@ export default function FrReqMainContent(): JSX.Element {
         </div>
       </div>
       <Table data={frRegs} columns={columns}></Table>
-      <CreateModal open={openCreateModal} setOpen={setOpenCreateModal} getFrReqs={getFrReqs} />
+      <CreateModal
+        open={openCreateModal}
+        setOpen={setOpenCreateModal}
+        getFrReqs={getFrReqs}
+      />
+      <UpdateModal
+        open={openCreateModal}
+        setOpen={setOpenCreateModal}
+        getFrReqs={getFrReqs}
+      />
     </section>
   );
 }
