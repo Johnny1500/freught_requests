@@ -20,6 +20,6 @@ model FrReq {
   freighter_name String
   phone String
   comment String?
-  status String
+  status String @default("новая")
   ati String
 }
