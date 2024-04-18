@@ -5,11 +5,12 @@ import {
   Button,
   Text,
   Icon,
+  TextInput,
   TableColumnConfig,
 } from "@gravity-ui/uikit";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useDeferredValue } from "react";
 
-import { Gear, TrashBin, Plus } from "@gravity-ui/icons";
+import { Gear, TrashBin, Plus, Magnifier } from "@gravity-ui/icons";
 
 import "../App.css";
 
@@ -29,6 +30,9 @@ export default function FrReqMainContent(): JSX.Element {
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
 
   const [hideCompletedReq, setHideCompletedReq] = useState<boolean>(false);
+  const [inputFilter, setInputFilter] = useState<string>("");
+
+  const defferedInputFilter = useDeferredValue(inputFilter);
 
   const frReqCurrent = useRef<FrReqUpdate>({
     id: 1,
@@ -185,11 +189,47 @@ export default function FrReqMainContent(): JSX.Element {
     getFrReqs();
   }, []);
 
+  useEffect(() => {
+    if (inputFilter !== "") {
+      const intermediateRegs = [...frRegs].filter((item) => {
+        return item["freighter_name"]
+          .toLocaleLowerCase()
+          .includes(defferedInputFilter.toLocaleLowerCase());
+      });
+
+      setFilteredFrReqs([...intermediateRegs]);
+    } else {
+      console.log("inputFilter", inputFilter);
+      setFilteredFrReqs([...frRegs]);
+    }
+  }, [inputFilter]);
+
   return (
     <section>
-      <h1>Заявки на перевозку</h1>
+      <h1 style={{ marginBottom: "30px" }}>Заявки на перевозку</h1>
       <div className="edit-container">
-        <Text>Количество {filteredFrRegs.length}</Text>
+        <div style={{ display: "flex" }}>
+          <Text>Количество {filteredFrRegs.length}</Text>
+          <TextInput
+            placeholder="Иванов Иван Иванович"
+            label="ФИО перевозчика"
+            name="freighter_name"
+            startContent={
+              <div style={{ paddingRight: "5px", paddingLeft: "5px" }}>
+                <Icon data={Magnifier} size={18} />
+              </div>
+            }
+            style={{
+              maxWidth: "500px",
+              minWidth: "200px",
+              marginLeft: "30px",
+              marginRight: "30px",
+            }}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setInputFilter(e.target.value);
+            }}
+          />
+        </div>
         <div className="edit-btn-container">
           <Button view="action" onClick={() => setEditMode(!isEditMode)}>
             {isEditMode ? "Просматривать" : "Редактировать"}
