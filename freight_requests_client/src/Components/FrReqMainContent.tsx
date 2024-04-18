@@ -174,14 +174,32 @@ export default function FrReqMainContent(): JSX.Element {
   }
 
   function handleHideCompetedReq() {
+    let intermediateRegs = [...frRegs];
+
     if (!hideCompletedReq) {
-      const intermediateRegs = [...frRegs].filter(
+      intermediateRegs = [...intermediateRegs].filter(
         (item) => item["status"] !== "завершено"
       );
 
+      if (inputFilter !== "") {
+        intermediateRegs = intermediateRegs.filter((item) => {
+          return item["freighter_name"]
+            .toLocaleLowerCase()
+            .includes(defferedInputFilter.toLocaleLowerCase());
+        });
+      }
+
       setFilteredFrReqs([...intermediateRegs]);
     } else {
-      setFilteredFrReqs([...frRegs]);
+      if (inputFilter !== "") {
+        intermediateRegs = intermediateRegs.filter((item) => {
+          return item["freighter_name"]
+            .toLocaleLowerCase()
+            .includes(defferedInputFilter.toLocaleLowerCase());
+        });
+      }
+
+      setFilteredFrReqs([...intermediateRegs]);
     }
   }
 
@@ -190,77 +208,92 @@ export default function FrReqMainContent(): JSX.Element {
   }, []);
 
   useEffect(() => {
+    let intermediateRegs = [...frRegs];
     if (inputFilter !== "") {
-      const intermediateRegs = [...frRegs].filter((item) => {
+      intermediateRegs = intermediateRegs.filter((item) => {
         return item["freighter_name"]
           .toLocaleLowerCase()
           .includes(defferedInputFilter.toLocaleLowerCase());
       });
 
+      if (hideCompletedReq) {
+        intermediateRegs = [...intermediateRegs].filter(
+          (item) => item["status"] !== "завершено"
+        );
+      }
+
       setFilteredFrReqs([...intermediateRegs]);
     } else {
       console.log("inputFilter", inputFilter);
-      setFilteredFrReqs([...frRegs]);
+
+      if (hideCompletedReq) {
+        intermediateRegs = [...intermediateRegs].filter(
+          (item) => item["status"] !== "завершено"
+        );
+      }
+
+      setFilteredFrReqs([...intermediateRegs]);
     }
   }, [inputFilter]);
 
   return (
     <section>
       <h1 style={{ marginBottom: "30px" }}>Заявки на перевозку</h1>
-      <div className="edit-container">
-        <div style={{ display: "flex" }}>
-          <Text>Количество {filteredFrRegs.length}</Text>
-          <TextInput
-            placeholder="Иванов Иван Иванович"
-            label="ФИО перевозчика"
-            name="freighter_name"
-            startContent={
-              <div style={{ paddingRight: "5px", paddingLeft: "5px" }}>
-                <Icon data={Magnifier} size={18} />
-              </div>
-            }
-            style={{
-              maxWidth: "500px",
-              minWidth: "200px",
-              marginLeft: "30px",
-              marginRight: "30px",
-            }}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setInputFilter(e.target.value);
-            }}
-          />
+      <div>
+        <div className="edit-container">
+          <div style={{ display: "flex" }}>
+            <Text>Количество {filteredFrRegs.length}</Text>
+            <TextInput
+              placeholder="Иванов Иван Иванович"
+              label="ФИО перевозчика"
+              name="freighter_name"
+              startContent={
+                <div style={{ paddingRight: "5px", paddingLeft: "5px" }}>
+                  <Icon data={Magnifier} size={18} />
+                </div>
+              }
+              style={{
+                maxWidth: "500px",
+                minWidth: "200px",
+                marginLeft: "30px",
+                marginRight: "30px",
+              }}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setInputFilter(e.target.value);
+              }}
+            />
+          </div>
+          <div className="edit-btn-container">
+            <Button view="action" onClick={() => setEditMode(!isEditMode)}>
+              {isEditMode ? "Просматривать" : "Редактировать"}
+            </Button>
+            <Button
+              view="action"
+              onClick={() => {
+                setHideCompletedReq(!hideCompletedReq);
+                handleHideCompetedReq();
+              }}
+            >
+              {hideCompletedReq ? "Показать завершенные" : "Скрыть завершенные"}
+            </Button>
+            {isEditMode ? (
+              <>
+                <Button view="action" onClick={() => setOpenCreateModal(true)}>
+                  <Icon data={Plus} size={18} />
+                  Создать
+                </Button>
+              </>
+            ) : null}
+          </div>
         </div>
-        <div className="edit-btn-container">
-          <Button view="action" onClick={() => setEditMode(!isEditMode)}>
-            {isEditMode ? "Просматривать" : "Редактировать"}
-          </Button>
-          <Button
-            view="action"
-            onClick={() => {
-              setHideCompletedReq(!hideCompletedReq);
-              handleHideCompetedReq();
-            }}
-          >
-            {hideCompletedReq ? "Показать завершенные" : "Скрыть завершенные"}
-          </Button>
-          {isEditMode ? (
-            <>
-              <Button view="action" onClick={() => setOpenCreateModal(true)}>
-                <Icon data={Plus} size={18} />
-                Создать
-              </Button>
-            </>
-          ) : null}
-        </div>
+        {filteredFrRegs.length > 0 ? (
+          <FrReqTable data={filteredFrRegs} columns={columns} />
+        ) : (
+          <div style={{ textAlign: "center", paddingTop: "20px" }}>
+            <Text variant="display-1">Нет заявок</Text>
+          </div>
+        )}
       </div>
-      {filteredFrRegs.length > 0 ? (
-        <FrReqTable data={filteredFrRegs} columns={columns} />
-      ) : (
-        <div style={{ textAlign: "center", paddingTop: "20px" }}>
-          <Text variant="display-1">Нет заявок</Text>
-        </div>
-      )}
-
       <CreateModal
         open={openCreateModal}
         setOpen={setOpenCreateModal}
