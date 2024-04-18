@@ -154,15 +154,23 @@ export default function FrReqMainContent(): JSX.Element {
 
         setFrRegs([...formattedArr]);
 
+        let intermediateRegs = [...formattedArr];
+
         if (hideCompletedReq) {
-          const intermediateRegs = [...formattedArr].filter(
+          intermediateRegs = [...intermediateRegs].filter(
             (item) => item["status"] !== "завершено"
           );
-
-          setFilteredFrReqs([...intermediateRegs]);
-        } else {
-          setFilteredFrReqs([...formattedArr]);
         }
+
+        if (inputFilter !== "") {
+          intermediateRegs = intermediateRegs.filter((item) => {
+            return item["freighter_name"]
+              .toLocaleLowerCase()
+              .includes(defferedInputFilter.toLocaleLowerCase());
+          });
+        }
+
+        setFilteredFrReqs([...intermediateRegs]);
       } else {
         console.error("HTTP Error: " + response.status);
       }
