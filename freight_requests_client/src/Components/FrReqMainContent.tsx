@@ -1,5 +1,6 @@
 import {
   Table,
+  withTableSorting,
   Link,
   Button,
   Text,
@@ -40,20 +41,41 @@ export default function FrReqMainContent(): JSX.Element {
   });
 
   const columns: TableColumnConfig<unknown>[] = [
-    { id: "id", name: "Номер заявки", align: "center" },
-    { id: "timestamp", name: "Дата", align: "center" },
-    { id: "client_brand", name: "Название фирмы клиента", align: "center" },
-    { id: "freighter_name", name: "ФИО перевозчика", align: "center" },
-    { id: "phone", name: "Контактный телефон", align: "center" },
-    { id: "comment", name: "Комментарий", align: "center" },
-    { id: "status", name: "Статус", align: "center" },
-    { id: "ati", name: "ATI", align: "center" },
+    { id: "id", name: "Номер заявки", align: "center", meta: { sort: true } },
+    { id: "timestamp", name: "Дата", align: "center", meta: { sort: true } },
+    {
+      id: "client_brand",
+      name: "Название фирмы клиента",
+      align: "center",
+      meta: { sort: true },
+    },
+    {
+      id: "freighter_name",
+      name: "ФИО перевозчика",
+      align: "center",
+      meta: { sort: true },
+    },
+    {
+      id: "phone",
+      name: "Контактный телефон",
+      align: "center",
+      meta: { sort: true },
+    },
+    {
+      id: "comment",
+      name: "Комментарий",
+      align: "center",
+    },
+    { id: "status", name: "Статус", align: "center", meta: { sort: true } },
+    { id: "ati", name: "ATI", align: "center", meta: { sort: true } },
   ];
 
   if (isEditMode) {
     columns.push({ id: "updateBtn", name: "Редактировать", align: "center" });
     columns.push({ id: "deleteBtn", name: "Удалить", align: "center" });
   }
+
+  const FrReqTable = withTableSorting(Table);
 
   async function getFrReqs() {
     try {
@@ -167,10 +189,19 @@ export default function FrReqMainContent(): JSX.Element {
     <section>
       <h1>Заявки на перевозку</h1>
       <div className="edit-container">
-        <Text>Количество {frRegs.length}</Text>
+        <Text>Количество {filteredFrRegs.length}</Text>
         <div className="edit-btn-container">
           <Button view="action" onClick={() => setEditMode(!isEditMode)}>
             {isEditMode ? "Просматривать" : "Редактировать"}
+          </Button>
+          <Button
+            view="action"
+            onClick={() => {
+              setHideCompletedReq(!hideCompletedReq);
+              handleHideCompetedReq();
+            }}
+          >
+            {hideCompletedReq ? "Показать завершенные" : "Скрыть завершенные"}
           </Button>
           {isEditMode ? (
             <>
@@ -178,22 +209,18 @@ export default function FrReqMainContent(): JSX.Element {
                 <Icon data={Plus} size={18} />
                 Создать
               </Button>
-              <Button
-                view="action"
-                onClick={() => {
-                  setHideCompletedReq(!hideCompletedReq);
-                  handleHideCompetedReq();
-                }}
-              >
-                {hideCompletedReq
-                  ? "Показать завершенные"
-                  : "Скрыть завершенные"}
-              </Button>
             </>
           ) : null}
         </div>
       </div>
-      <Table data={filteredFrRegs} columns={columns}></Table>
+      {filteredFrRegs.length > 0 ? (
+        <FrReqTable data={filteredFrRegs} columns={columns} />
+      ) : (
+        <div style={{ textAlign: "center", paddingTop: "20px" }}>
+          <Text variant="display-1">Нет заявок</Text>
+        </div>
+      )}
+
       <CreateModal
         open={openCreateModal}
         setOpen={setOpenCreateModal}
