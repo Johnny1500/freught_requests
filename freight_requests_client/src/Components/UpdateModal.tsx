@@ -2,27 +2,21 @@ import { Button, Modal, TextInput, Text, Select } from "@gravity-ui/uikit";
 
 import "../App.css";
 import { FrReqUpdate } from "../interfaces";
-import { useRef } from "react";
+import { MutableRefObject } from "react";
+
+import { forwardRef } from "react";
 
 interface Props {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  getFrReqs: () => Promise<void>; 
+  getFrReqs: () => Promise<void>;
 }
 
-export default function UpdateModal({
-  open,
-  setOpen,
-  getFrReqs,
-}: Props): JSX.Element {
-  const frReqRef = useRef<FrReqUpdate>({
-    status: "новая",
-    client_brand: "",
-    freighter_name: "",
-    phone: "",
-    ati: "",
-    comment: "",
-  });
+export default forwardRef(function UpdateModal(
+  { open, setOpen, getFrReqs }: Props,
+  ref: React.ForwardedRef<FrReqUpdate>
+): JSX.Element {
+  const frReqCurrent = ref as MutableRefObject<FrReqUpdate>;
 
   function handleInputChange(e: React.FormEvent<HTMLDivElement>) {
     const target = e.target as HTMLInputElement;
@@ -34,7 +28,7 @@ export default function UpdateModal({
 
     // eslint-disable-next-line
     // @ts-ignore
-    frReqRef.current[targetInputName] = targetInput.value;
+    frReqCurrent.current[targetInputName] = targetInput.value;
   }
 
   return (
@@ -44,13 +38,16 @@ export default function UpdateModal({
           e.preventDefault();
 
           try {
-            await fetch("http://localhost:3000/api/v1/fr_req", {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json;charset=utf-8",
-              },
-              body: JSON.stringify(frReqRef.current),
-            });
+            await fetch(
+              `http://localhost:3000/api/v1/fr_req/${frReqCurrent.current["id"]}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json;charset=utf-8",
+                },
+                body: JSON.stringify(frReqCurrent.current),
+              }
+            );
 
             await getFrReqs();
 
@@ -74,26 +71,40 @@ export default function UpdateModal({
             placeholder="Магнит"
             label="Название фирмы клиента"
             name="client_brand"
+            defaultValue={frReqCurrent.current["client_brand"]}
           />
           <TextInput
             placeholder="Иванов Иван Иванович"
             label="ФИО перевозчика"
             name="freighter_name"
+            defaultValue={frReqCurrent.current["freighter_name"]}
           />
           <TextInput
             type="tel"
             placeholder="+79999999998"
             label="Контактный телефон"
             name="phone"
+            defaultValue={frReqCurrent.current["phone"]}
           />
-          <TextInput label="Комментарий" name="comment" />
+          <TextInput
+            label="Комментарий"
+            name="comment"
+            defaultValue={frReqCurrent.current["comment"]}
+          />
           <TextInput
             type="url"
             placeholder="https://ati.su/firms/29056/info"
             label="ATI"
             name="ati"
+            defaultValue={frReqCurrent.current["ati"]}
           />
-          <Select>
+          <Select
+            label="Статус"
+            onUpdate={(e) => {
+              frReqCurrent.current["status"] = e[0];
+            }}
+            defaultValue={[frReqCurrent.current["status"]]}
+          >
             <Select.Option value="новая">новая</Select.Option>
             <Select.Option value="в работе">в работе</Select.Option>
             <Select.Option value="завершено">завершено</Select.Option>
@@ -101,11 +112,11 @@ export default function UpdateModal({
         </div>
         <div className="modal-btn-container">
           <Button view="action" type="submit">
-            Создать
+            Изменить
           </Button>
           <Button onClick={() => setOpen(false)}>Отмена</Button>
         </div>
       </form>
     </Modal>
   );
-}
+});

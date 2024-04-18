@@ -6,7 +6,11 @@ import {
   Icon,
   TableColumnConfig,
 } from "@gravity-ui/uikit";
-import { useState, useEffect, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useRef 
+} from "react";
 
 import { Gear, TrashBin, Plus } from "@gravity-ui/icons";
 
@@ -25,6 +29,7 @@ export default function FrReqMainContent(): JSX.Element {
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
 
   const frReqCurrent = useRef<FrReqUpdate>({
+    id:1,
     status: "новая",
     client_brand: "",
     freighter_name: "",
@@ -58,9 +63,10 @@ export default function FrReqMainContent(): JSX.Element {
 
         const formattedArr = [...json].map((item) => {
           const formattedItem = { ...item };
-          const { status, client_brand, freighter_name, phone, ati, comment } =
+          const { status, client_brand, freighter_name, phone, ati, comment, id } =
             item;
           const intermediateItem = {
+            id,
             status,
             client_brand,
             freighter_name,
@@ -86,9 +92,13 @@ export default function FrReqMainContent(): JSX.Element {
           );
 
           formattedItem["updateBtn"] = (
-            <Button view="outlined-action" onClick={() => {
-              frReqCurrent.current = intermediateItem;
-            }}>
+            <Button
+              view="outlined-action"
+              onClick={() => {
+                frReqCurrent.current = intermediateItem;
+                setOpenUpdateModal(true);
+              }}
+            >
               <Icon data={Gear} size={18} />
             </Button>
           );
@@ -141,9 +151,10 @@ export default function FrReqMainContent(): JSX.Element {
         getFrReqs={getFrReqs}
       />
       <UpdateModal
-        open={openCreateModal}
-        setOpen={setOpenCreateModal}
+        open={openUpdateModal}
+        setOpen={setOpenUpdateModal}
         getFrReqs={getFrReqs}
+        ref={frReqCurrent}
       />
     </section>
   );
