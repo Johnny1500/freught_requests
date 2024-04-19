@@ -14,8 +14,12 @@ import { Gear, TrashBin, Plus, Magnifier } from "@gravity-ui/icons";
 
 import "../App.css";
 
+// Модальные окна
+// Для создания транспортной заявки
 import CreateModal from "./CreateModal";
+// Для изменения транспортной заявки
 import UpdateModal from "./UpdateModal";
+// Для удаления транспортной заявки
 import DeleteModal from "./DeleteModal";
 
 import { FrReqRender, FrReqUpdate } from "../interfaces";
@@ -34,6 +38,7 @@ export default function FrReqMainContent(): JSX.Element {
 
   const defferedInputFilter = useDeferredValue(inputFilter);
 
+  // Объект для хранения текущей заявки при изменении/удалении
   const frReqCurrent = useRef<FrReqUpdate>({
     id: 1,
     status: "новая",
@@ -74,13 +79,16 @@ export default function FrReqMainContent(): JSX.Element {
     { id: "ati", name: "ATI", align: "center", meta: { sort: true } },
   ];
 
+  // Дополнительные колонки режима редактирования
   if (isEditMode) {
     columns.push({ id: "updateBtn", name: "Редактировать", align: "center" });
     columns.push({ id: "deleteBtn", name: "Удалить", align: "center" });
   }
 
+  // Сортировка таблицы
   const FrReqTable = withTableSorting(Table);
 
+  // Получение всех заявок
   async function getFrReqs() {
     try {
       const response = await fetch(`http://localhost:3000/api/v1/fr_req`);
@@ -181,6 +189,7 @@ export default function FrReqMainContent(): JSX.Element {
     }
   }
 
+  // Скрыть/показать завершенные заявки
   function handleHideCompetedReq() {
     let intermediateRegs = [...frRegs];
 
@@ -215,6 +224,7 @@ export default function FrReqMainContent(): JSX.Element {
     getFrReqs();
   }, []);
 
+  // Фильтр по ФИО перевозчика
   useEffect(() => {
     let intermediateRegs = [...frRegs];
     if (inputFilter !== "") {
